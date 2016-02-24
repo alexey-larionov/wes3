@@ -1,0 +1,61 @@
+Job description file for combining gvcfs
+Alexey Larionov, 10Feb2016
+
+TEMPLATE v4
+
+=========== Data location and analysis settings =============
+
+Data server: admin@mgqnap.medschl.cam.ac.uk
+Project location: /share/alexey
+
+project: project1
+libraries: library1 library2 library3 library4
+set_id: set1
+
+Remove project folder from HPC scratch: no
+
+============= Additional mgqnap settings ====================
+
+mgqnap_user: alexey
+mgqnap_group: mtgroup
+
+======================= HPC settings ========================
+
+working_folder: /scratch/medgen/users/alexey
+
+Account to use on HPC: TISCHKOWITZ-SL2
+Max time to request (hrs.min.sec): 24.00.00
+
+==================== Pipeline summary =======================
+
+#Pipeline combines gvcfs to prepare them for joined variant calling. 
+#This step is recommended by GATK for convinience in processing of 
+#large numbers of samples (e.g. combine gvcfs for each 100 samples) 
+
+===================== Standard settings =====================
+
+scripts_folder: /scratch/medgen/scripts/wes_pipeline_02.16/p04_wes_combine_gvcfs
+start_script: a00_start_pipeline.sh
+
+Tools
+-----
+
+tools_folder: /scratch/medgen/tools
+java7: java/jre1.7.0_76/bin/java
+gatk: gatk/gatk-3.4-46/GenomeAnalysisTK.jar
+
+Resources
+---------
+
+resources_folder: /scratch/medgen/resources
+
+decompressed_bundle_folder: gatk_bundle/b37/decompressed
+ref_genome: human_g1k_v37.fasta
+
+nextera_folder: illumina_nextera
+nextera_targets_intervals: nexterarapidcapture_exome_targetedregions_v1.2.b37.intervals
+
+Working sub-folders
+-------------------
+
+combined_gvcfs_folder: combined_gvcfs

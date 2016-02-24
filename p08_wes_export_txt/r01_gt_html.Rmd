@@ -1,0 +1,157 @@
+---
+output: html_document
+params: 
+  dataset: ""
+  data_type: ""
+  working_folder: ""
+  vv_file: ""
+  gt_file: ""
+  file_out_base: ""
+---
+
+```{r setup, include=FALSE}
+
+# Make html report to check exported text files
+# Alexey Larionov
+# 12Feb2016
+
+# Read command line parameters
+ds <- params$dataset
+dt <- params$data_type
+wf <- params$working_folder
+vv.file <- params$vv_file
+gt.file <- params$gt_file
+file.out.base <- params$file_out_base
+
+#ds <- "ihcap_test"
+#dt <- "biallelic"
+#wf <- "/scratch/medgen/users/alexey/ihcap_test/ihcap_std_filters_txt"
+#vv.file <- "biallelic/ihcap_std_filters_VV_biallelic.txt"
+#gt.file <- "biallelic/ihcap_std_filters_GT_biallelic.txt"
+#file.base.out <- "biallelic/ihcap_std_filters_GT_biallelic"
+
+# Set root folder
+library(knitr)
+opts_knit$set(root.dir = wf)
+#setwd(wf)
+
+```
+
+<center> <H1> `r ds` </H1> </center>
+<center> <H1> `r dt` </H1> </center> 
+<center> <H3> Translating alphabetic GT to numeric </H3> </center>
+<center> <H5> Generates 3 files: for additive, dominant and recessive coding </H5> </center> 
+<br>
+
+```{r analysis}
+
+# Read annotations
+vv.df <- read.table(vv.file, header = TRUE, sep = "\t", quote = "")
+
+# Add variants IDs to row names
+rownames(vv.df) <- vv.df$RawVarID
+
+# Check annotations
+dim(vv.df)
+vv.df[1:5,1:8]
+
+# Read refs and alts
+ref <- as.vector(vv.df$REF)
+alt <- as.vector(vv.df$ALT)
+
+# Check for characters that should not be present in ALT
+sum(grepl(",", alt))
+sum(grepl("\\*",alt))
+
+# Make vectors of genotypes from alleles
+ref.ref <- paste(ref, ref, sep="/")
+alt.alt <- paste(alt, alt, sep="/")
+ref.alt <- paste(ref, alt, sep="/")
+alt.ref <- paste(alt, ref, sep="/")
+
+# Read table with genotypes
+gt.df.alph <- read.table(gt.file, header = TRUE, sep = "\t", quote = "")
+
+# Check that raw vars IDs are the same in genotypes and annotations
+sum(gt.df.alph$RawVarID != vv.df$RawVarID)
+
+# Move variants IDs to row names
+rownames(gt.df.alph) <- gt.df.alph$RawVarID
+gt.df.alph <- gt.df.alph[,-1]
+
+# Check genotypes table
+dim(gt.df.alph)
+gt.df.alph[1:5,1:4]
+
+# Convert df to matrices
+gt.ma.chr.add <- as.matrix(gt.df.alph)
+gt.ma.chr.dom <- gt.ma.chr.add
+gt.ma.chr.rec <- gt.ma.chr.add
+
+# Check converted matrix
+summary(as.factor(gt.ma.chr.add[1:10,1:10]))
+
+# Recode alphabetic data to additive numeric
+# (numbers are still characters!)
+NA -> gt.ma.chr.add[ gt.ma.chr.add == "./." ]
+0 -> gt.ma.chr.add[ gt.ma.chr.add == ref.ref ]
+2 -> gt.ma.chr.add[ gt.ma.chr.add == alt.alt ]
+1 -> gt.ma.chr.add[ gt.ma.chr.add == ref.alt ]
+1 -> gt.ma.chr.add[ gt.ma.chr.add == alt.ref ]
+
+# Check results
+summary(as.factor(gt.ma.chr.add[1:10,1:10]))
+summary(as.factor(gt.ma.chr.add))
+gt.ma.chr.add[1:5,1:4]
+
+# Recode alphabetic data to dominant numeric
+# (numbers are still characters!)
+NA -> gt.ma.chr.dom[ gt.ma.chr.dom == "./." ]
+0 -> gt.ma.chr.dom[ gt.ma.chr.dom == ref.ref ]
+1 -> gt.ma.chr.dom[ gt.ma.chr.dom == alt.alt ]
+1 -> gt.ma.chr.dom[ gt.ma.chr.dom == ref.alt ]
+1 -> gt.ma.chr.dom[ gt.ma.chr.dom == alt.ref ]
+
+# Check results
+summary(as.factor(gt.ma.chr.dom[1:10,1:10]))
+summary(as.factor(gt.ma.chr.dom))
+gt.ma.chr.dom[1:5,1:4]
+
+# Recode alphabetic data to recessive numeric
+# (numbers are still characters!)
+NA -> gt.ma.chr.rec[ gt.ma.chr.rec == "./." ]
+0 -> gt.ma.chr.rec[ gt.ma.chr.rec == ref.ref ]
+1 -> gt.ma.chr.rec[ gt.ma.chr.rec == alt.alt ]
+0 -> gt.ma.chr.rec[ gt.ma.chr.rec == ref.alt ]
+0 -> gt.ma.chr.rec[ gt.ma.chr.rec == alt.ref ]
+
+# Check results
+summary(as.factor(gt.ma.chr.rec[1:10,1:10]))
+summary(as.factor(gt.ma.chr.rec))
+gt.ma.chr.rec[1:5,1:4]
+
+# Convert numeric characters to numbers
+# (may not be necessary here, but does not hurt either)
+gt.ma.num.add <- apply(gt.ma.chr.add,2,as.numeric)
+rownames(gt.ma.num.add) <- rownames(gt.ma.chr.add)
+gt.ma.num.add[1:5,1:4]
+
+gt.ma.num.dom <- apply(gt.ma.chr.dom,2,as.numeric)
+rownames(gt.ma.num.dom) <- rownames(gt.ma.chr.dom)
+gt.ma.num.dom[1:5,1:4]
+
+gt.ma.num.rec <- apply(gt.ma.chr.rec,2,as.numeric)
+rownames(gt.ma.num.rec) <- rownames(gt.ma.chr.rec)
+gt.ma.num.rec[1:5,1:4]
+
+# Save converted tables to tab-delimited text files
+
+add.file.name <- paste(file.out.base,"_add.txt",sep="")
+dom.file.name <- paste(file.out.base,"_dom.txt",sep="")
+rec.file.name <- paste(file.out.base,"_rec.txt",sep="")
+
+write.table(gt.ma.num.add, add.file.name, quote = FALSE, sep = "\t")
+write.table(gt.ma.num.dom, dom.file.name, quote = FALSE, sep = "\t")
+write.table(gt.ma.num.rec, rec.file.name, quote = FALSE, sep = "\t")
+
+```

@@ -1,0 +1,132 @@
+Job description file for filtering vcf
+Alexey Larionov, 12Feb2016
+
+TEMPLATE v9
+
+=========== Data location and analysis settings =============
+
+Data server: admin@mgqnap.medschl.cam.ac.uk
+Project location: /share/alexey
+
+project: project1
+raw variantset name: variantset1
+filter name: filter1
+
+Min SNP DP: 5000.0
+Min SNP QUAL: 150.0
+Min SNP VQSLOD: 12.3456
+SNP TS: 97.0
+
+Min INDEL DP: 5000.0
+Min INDEL QUAL: 150.0
+Min INDEL VQSLOD: 1.2345
+INDEL TS: 95.0
+
+Min MIXED DP: 5000.0
+Min MIXED QUAL: 150.0
+Min MIXED VQSLOD: 1.2345
+
+Padding: 10
+
+Exclude MultiAllelic: yes
+
+Apply 1k ALT frequency threshold: no
+
+Remove project folder from HPC scratch after run: no
+
+Notes: 
+- DP refers to total over all samples (e.g. use num of samples * 10)
+- QUAL threshold may be selected on the basis of Ti/Tv ratio in vcfstats
+- DP and QUAL thresholds may be set equally for all types of variants
+- TS and VQSLOD for SNPs and INDELs should be taken from the appropriate tranches files 
+- VQSLOD is used for actual filtration; TS is merely placed into the filter's label: it is NOT used in any calculations!
+- VQSR threshold for MIXED may be set similar to INDEL (check the appropriate histograms)
+- Padding should be between 0 (no padding) and 100 (padding preserved in our vcfs) 
+- Keep at least one digit after decimal point in the thresholds except padding  
+- Do not use decimal point in padding
+- Allowed values for 1k ALT frequency thresholds: no, 90, 95, 99, 100
+
+====================== mgqnap settings ======================
+
+mgqnap_user: alexey
+mgqnap_group: mtgroup
+
+======================= HPC settings ========================
+
+working_folder: /scratch/medgen/users/alexey
+
+Account to use on HPC: TISCHKOWITZ-SL2
+Max time to request (hrs.min.sec): 09.00.00
+
+==================== Pipeline summary ======================
+
+#Filtering vcf
+
+===================== Standard settings =====================
+
+scripts_folder: /scratch/medgen/scripts/wes_pipeline_02.16/p06_wes_filter_vcf
+start_script: a00_start_pipeline.sh
+
+Tools
+-----
+
+tools_folder: /scratch/medgen/tools
+java7: java/jre1.7.0_76/bin/java
+gatk: gatk/gatk-3.4-46/GenomeAnalysisTK.jar
+
+bcftools: bcftools/bcftools-1.2/bin/bcftools
+plot_vcfstats: bcftools/bcftools-1.2/bin/plot-vcfstats
+
+Updated version of Python matplotlib library for plot-vcfstats script
+python_bin: python/python_2.7.10/bin/
+
+r_folder: r/R-3.2.0/bin
+
+r_bin_folder: r/R-3.2.2/bin/
+r_lib_folder: r/R-3.2.2/lib64/R/library
+
+Note about using different R versions
+-------------------------------------
+R-3.2.0 is used here for plotting in GATK-VQSR, 
+which requires a specific set of R-libraries.
+For being accessable by GATK, R-3.2.0 is added to PATH.
+  
+R-3.2.2 is used here to genereate html and pdf reports with rmarkdown.
+Generating reports with Rmarkdown is pernickety about environment. 
+It requires recent versions of several system libraries
+and a number of additional R libraries to be pre-installed.
+The external libraries are loaded as modules in *.sb.sh script:
+module load gcc/5.2.0
+module load boost/1.50.0
+module load texlive/2015
+module load pandoc/1.15.2.1
+Rmarkdown library has to be installed in the r_lib_folder
+shown above. 
+
+Historically, at the time of the scripts preparation, it happened
+that different sets of libraries were available in different versions
+of R installed in the toolbox. This resulted to the temporary configuration
+of using two different R versions at the same time. Then, there was 
+no time and need to change it.  
+
+See details details about required R-libraries in the 
+r-installation notes in the tools folder.
+
+Resources
+---------
+
+resources_folder: /scratch/medgen/resources
+
+decompressed_bundle_folder: gatk_bundle/b37/decompressed
+ref_genome: human_g1k_v37.fasta
+
+nextera_folder: illumina_nextera
+nextera_targets_intervals: nexterarapidcapture_exome_targetedregions_v1.2.b37.intervals
+nextera_targets_bed: nexterarapidcapture_exome_targetedregions_v1.2.b37.bed
+
+Working sub-folders
+-------------------
+
+logs_folder: logs
+histograms_folder: histograms
+vcfstats_folder: vcfstats

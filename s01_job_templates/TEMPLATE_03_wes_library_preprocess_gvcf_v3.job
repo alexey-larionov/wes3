@@ -1,0 +1,95 @@
+Job description file for bams preprocessing and making gvcfs for a wes library
+Alexey Larionov, 10Feb2016
+
+TEMPLATE v3
+
+=========== Data location and analysis settings =============
+
+Data server: admin@mgqnap.medschl.cam.ac.uk
+Project location: /share/alexey
+
+project: project1
+library: library1
+
+Remove project folder from HPC scratch after run: no
+
+============= Additional mgqnap settings ====================
+
+mgqnap_user: alexey
+mgqnap_group: mtgroup
+
+======================= HPC settings ========================
+
+working_folder: /scratch/medgen/users/alexey
+
+Account to use for copying source files into HPC: TISCHKOWITZ-SL2
+Max time requested for copying source files (hrs.min.sec): 02.00.00
+
+Account to use for bams preprocessing and making gvcfs: TISCHKOWITZ-SL2
+Max time requested for bams preprocessing and making gvcf (hrs.min.sec): 07.00.00
+
+Account to use for moving results out of HPC: TISCHKOWITZ-SL2
+Max time requested for moving results out of HPC (hrs.min.sec): 02.00.00
+
+==================== Pipeline summary =======================
+
+#Pipeline preprocesses dedupped bams and makes g.vcf files for a wes library
+#
+#Following the Best Practices GATK recommendations the pipeline includes
+#- local indel realignment and
+#- base quality score recalibration for bams pre-processing
+#- haplotype variant caller for generating gvcf files
+
+===================== Standard settings =====================
+
+scripts_folder: /scratch/medgen/scripts/wes_pipeline_02.16/p03_wes_library_preprocess_gvcf
+start_script: a00_start_pipeline.sh
+
+Tools
+-----
+
+tools_folder: /scratch/medgen/tools
+
+java6: java/jre1.6.0_45/bin/java
+java7: java/jre1.7.0_76/bin/java
+
+picard: picard/picard-tools-1.133/picard.jar
+gatk: gatk/gatk-3.4-46/GenomeAnalysisTK.jar
+
+r_folder: r/R-3.2.0/bin
+
+Resources
+---------
+
+resources_folder: /scratch/medgen/resources
+
+decompressed_bundle_folder: gatk_bundle/b37/decompressed
+
+ref_genome: human_g1k_v37.fasta
+
+dbsnp: dbsnp_138.b37.vcf
+dbsnp129: dbsnp_138.b37.excluding_sites_after_129.vcf
+
+hapmap: hapmap_3.3.b37.vcf
+omni: 1000G_omni2.5.b37.vcf
+phase1_1k_hc: 1000G_phase1.snps.high_confidence.b37.vcf
+
+indels_1k: 1000G_phase1.indels.b37.vcf
+indels_mills: Mills_and_1000G_gold_standard.indels.b37.vcf
+
+nextera_folder: illumina_nextera
+nextera_targets_intervals: nexterarapidcapture_exome_targetedregions_v1.2.b37.intervals
+
+Working sub-folders
+-------------------
+
+merged_folder: merged
+dedup_bam_folder: f01_bams
+
+processed_folder: processed
+logs_folder: f00_logs
+proc_bam_folder: f01_bams
+idr_folder: f02_idr
+bqr_folder: f03_bqr
+
+gvcf_folder: gvcfs

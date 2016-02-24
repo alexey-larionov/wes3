@@ -1,0 +1,147 @@
+Job description file for wes lane alignment and QC
+Alexey Larionov, 11Feb2016
+
+TEMPLATE v7
+
+=========== Data location and analysis settings =============
+
+Source server: admin@mgqnap.medschl.cam.ac.uk
+Source folder: /share/alexey/SLX-9871_150601_D00491_0172_C71EDANXX_s8
+
+Results server: admin@mgqnap.medschl.cam.ac.uk
+Results folder: /share/alexey
+
+project: project1
+library: library1
+lane: lane1
+
+Use CI's contents.csv file and make folder with renamed fastq files: no
+
+Remove project and library folders from HPC scratch after run: no
+
+============= Additional mgqnap settings ====================
+
+mgqnap_user: alexey
+mgqnap_group: mtgroup
+
+======================= HPC settings ========================
+
+working_folder: /scratch/medgen/users/alexey
+
+Account to use for copying source files into HPC: TISCHKOWITZ-SL2
+Max time requested for copying source files (hrs.min.sec): 02.00.00
+
+Account to use for alignment and QC: TISCHKOWITZ-SL2
+Max time requested for alignment and QC (hrs.min.sec): 07.00.00
+
+Account to use for moving results out of HPC: TISCHKOWITZ-SL2
+Max time requested for moving results out of HPC (hrs.min.sec): 02.00.00
+
+==================== Pipeline summary =======================
+
+# Pipeline performs alignment and QC.
+# 
+# Pipeline includes the following data processing:
+# - Trimming NextEra adaptors from reads in fastq files using Cutadapt
+# - Alignment to GRCh37 reference genome by BWA-MEM
+# - Initial bam pre-processing: fixing mate reads, sorting by coordinate, 
+# (by samtools) and adding read groups (by picard)
+# 
+# Along with the above data processing the pipeline calculates a number
+# of QC metrics for each sample. 
+# 
+# Metrics provided for fastq files:
+# - FastQC before and after trimming
+# - Cutadap's trimming logs
+# 
+# Metrics provided for bam files:
+# - flagstat (samtools)
+# - mark-duplicates stats (picard)
+# - insert sisez stats (picard)
+# - alignment summary metrics (picard)
+# - hybridisation selection metrics (picard)
+# - Qualimap report
+# - Samstat report
+# 
+# Bam metrics include detailed reports for each sample as well as summary 
+# tables and plots for all samples on the lane. 
+
+===================== Standard settings =====================
+
+scripts_folder: /scratch/medgen/scripts/wes_pipeline_02.16/p01_wes_lane_alignment_and_qc
+start_script: a00_start_pipeline.sh
+
+Tools
+-----
+
+tools_folder: /scratch/medgen/tools
+
+java6: java/jre1.6.0_45/bin/java
+java7: java/jre1.7.0_76/bin/java
+java8: java/jre1.8.0_40/bin/java
+
+fastqc: fastqc/fastqc_v0.11.3/fastqc
+
+cutadapt: python/python_2.7.10/bin/cutadapt
+cutadapt_min_len: 50
+cutadapt_trim_qual: 20
+cutadapt_adapter_1: CTGTCTCTTATACACATCTCCGAGCCCACGAGACNNNNNNNNATCTCGTATGCCGTCTTCTGCTTG
+cutadapt_adapter_2: CTGTCTCTTATACACATCTGACGCTGCCGACGANNNNNNNNGTGTAGATCTCGGTGGTCGCCGTATCATT
+
+bwa: bwa/bwa-0.7.12/bwa
+bwa_index: bwa/bwa-0.7.12/indices/b37/b37_bwtsw
+
+samtools: samtools/samtools-1.2/bin/samtools
+samtools_folder: samtools/samtools-1.2/bin
+
+picard: picard/picard-tools-1.133/picard.jar
+
+r_folder: r/R-3.2.0/bin
+
+qualimap: qualimap/qualimap_v2.1.1/qualimap.modified
+
+gnuplot: gnuplot/gnuplot-5.0.1/bin/gnuplot
+LiberationSansRegularTTF: fonts/liberation-fonts-ttf-2.00.1/LiberationSans-Regular.ttf
+
+samstat: samstat/samstat-1.5.1/bin/samstat
+
+Resources
+---------
+
+resources_folder: /scratch/medgen/resources
+
+ref_genome: gatk_bundle/b37/decompressed/human_g1k_v37.fasta
+
+hs_metrics_probes_name: Nexera_Rapid_Capture_Exome
+nextera_probes_intervals: illumina_nextera/nexterarapidcapture_exome_probes_v1.2.b37.intervals
+nextera_targets_intervals: illumina_nextera/nexterarapidcapture_exome_targetedregions_v1.2.b37.intervals
+nextera_targets_bed_3: illumina_nextera/nexterarapidcapture_exome_targetedregions_v1.2.b37.bed
+nextera_targets_bed_6: illumina_nextera/nexterarapidcapture_exome_targetedregions_v1.2.b37.6.bed
+
+Working sub-folders
+-------------------
+
+logs_folder: f00_logs
+
+source_fastq_folder: f01_source_fastq
+renamed_fastq_folder: f01_fastq/f02_renamed_fastq
+
+fastqc_raw_folder: f02_fastq_stats/f01_fastqc_raw
+trimmed_fastq_folder: f02_fastq_stats/f02_adaptors_trimming
+fastqc_trimmed_folder: f02_fastq_stats/f03_fastqc_trimmed
+
+bam_folder: f03_bam
+
+flagstat_folder: f04_bam_stats/f01_flagstat
+picard_mkdup_folder: f04_bam_stats/f02_picard/f01_mkdup_metrics
+picard_inserts_folder: f04_bam_stats/f02_picard/f02_inserts_metrics
+picard_alignment_folder: f04_bam_stats/f02_picard/f03_alignment_metrics
+picard_hybridisation_folder: f04_bam_stats/f02_picard/f04_hybridisation_metrics
+picard_summary_folder: f04_bam_stats/f02_picard/f05_metrics_summaries
+qualimap_results_folder: f04_bam_stats/f03_qualimap
+samstat_results_folder: f04_bam_stats/f04_samstat
+
+Additional parameters
+---------------------
+
+platform: illumina

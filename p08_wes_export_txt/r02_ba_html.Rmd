@@ -1,0 +1,156 @@
+---
+output: html_document
+params: 
+  dataset: ""
+  data_type: ""
+  working_folder: ""
+  vv_file: "" 
+  gt_file: ""
+  gt_add_file: ""
+  gt_dom_file: ""
+  gt_rec_file: ""
+  dp_file: ""
+  ad_file: ""
+  gq_file: ""
+  pl_file: ""
+---
+
+```{r setup_read_data, include=FALSE}
+
+# Make html report to check exported text files
+# Alexey Larionov
+# 11Feb2016
+
+# Read command line parameters
+ds <- params$dataset
+tp <- params$data_type
+wf <- params$working_folder
+vv.file <- params$vv_file
+gt.file <- params$gt_file
+gt.add.file <- params$gt_add_file
+gt.dom.file <- params$gt_dom_file
+gt.rec.file <- params$gt_rec_file
+dp.file <- params$dp_file
+ad.file <- params$ad_file
+gq.file <- params$gq_file
+pl.file <- params$pl_file
+
+#ds <- "ihcap_test"
+#tp <- "biallelic"
+#wf <- "/scratch/medgen/users/alexey/ihcap_test/ihcap_std_filters_txt"
+#vv.file <- "biallelic/ihcap_std_filters_VV_biallelic.txt"
+#gt.file <- "biallelic/ihcap_std_filters_GT_biallelic.txt"
+#gt.add.file <- "biallelic/ihcap_std_filters_GT_biallelic_add.txt"
+#gt.dom.file <- "biallelic/ihcap_std_filters_GT_biallelic_dom.txt"
+#gt.rec.file <- "biallelic/ihcap_std_filters_GT_biallelic_rec.txt"
+#dp.file <- "biallelic/ihcap_std_filters_DP_biallelic.txt"
+#ad.file <- "biallelic/ihcap_std_filters_AD_biallelic.txt"
+#gq.file <- "biallelic/ihcap_std_filters_GQ_biallelic.txt"
+#pl.file <- "biallelic/ihcap_std_filters_PL_biallelic.txt"
+
+# Set root folder
+library(knitr)
+opts_knit$set(root.dir = wf)
+#setwd(wf)
+
+```
+
+<center> <H1> `r ds` </H1> </center>
+<center> <H1> `r tp` </H1> </center> 
+<center> <H3> Testing exported tables in R </H3> </center> 
+<br>
+
+#VCF-VEP annotations (VV)
+
+```{r vv}
+vv.df <- read.table(vv.file, header = TRUE, sep = "\t", quote = "")
+dim(vv.df)
+colnames(vv.df)
+vv.df[1:5,1:9]
+```
+
+#Count of alternative alleles (NDA)
+NDA = number of alternate alleles discovered (but not necessarily genotyped) at the site
+
+```{r nda}
+nda <- as.vector(vv.df$NDA)
+table(nda)
+hist(nda, xlim=c(0,max(nda)), breaks = c(0:max(nda)))
+rm(vv.df, nda)
+```
+
+#Genotypes (GT)
+
+```{r gt}
+gt.df <- read.table(gt.file, header = TRUE, sep = "\t", quote = "")
+dim(gt.df)
+colnames(gt.df)
+gt.df[1:5,1:5]
+rm(gt.df)
+```
+
+#Genotypes additive (GT add)
+
+```{r gt_add}
+gt.add.df <- read.table(gt.add.file, header = TRUE, sep = "\t", quote = "")
+dim(gt.add.df)
+summary(as.factor(as.matrix(gt.add.df)))
+gt.add.df[1:5,1:4]
+rm(gt.add.df)
+```
+
+#Genotypes dominant (GT dom)
+
+```{r gt_dom}
+gt.dom.df <- read.table(gt.dom.file, header = TRUE, sep = "\t", quote = "")
+dim(gt.dom.df)
+summary(as.factor(as.matrix(gt.dom.df)))
+gt.dom.df[1:5,1:4]
+rm(gt.dom.df)
+```
+
+#Genotypes recessive (GT rec)
+
+```{r gt_rec}
+gt.rec.df <- read.table(gt.rec.file, header = TRUE, sep = "\t", quote = "")
+dim(gt.rec.df)
+summary(as.factor(as.matrix(gt.rec.df)))
+gt.rec.df[1:5,1:4]
+rm(gt.rec.df)
+```
+
+#Depth (DP)
+
+```{r dp}
+dp.df <- read.table(dp.file, header = TRUE, sep = "\t", quote = "")
+dim(dp.df)
+dp.df[1:5,1:4]
+rm(dp.df)
+```
+
+#Depth per allele (AD)
+
+```{r ad}
+ad.df <- read.table(ad.file, header = TRUE, sep = "\t", quote = "")
+dim(ad.df)
+ad.df[1:5,1:4]
+rm(ad.df)
+```
+
+#Genotype quality (GQ)
+
+```{r gq}
+gq.df <- read.table(gq.file, header = TRUE, sep = "\t", quote = "")
+dim(gq.df)
+gq.df[1:5,1:4]
+rm(gq.df)
+```
+
+#Genotypes likelihoods (PL)
+
+```{r pl}
+pl.df <- read.table(pl.file, header = TRUE, sep = "\t", quote = "")
+dim(pl.df)
+pl.df[1:5,1:4]
+rm(pl.df)
+```

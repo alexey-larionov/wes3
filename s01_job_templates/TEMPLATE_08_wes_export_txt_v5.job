@@ -1,0 +1,96 @@
+Job description file for data export
+Alexey Larionov, 13Feb2016
+
+TEMPLATE v5
+
+=========== Data location and analysis settings =============
+
+Data server: admin@mgqnap.medschl.cam.ac.uk
+Project location: /share/alexey
+
+project: project1
+vep annotated dataset: variantset1_filter1
+
+Remove project folder from HPC scratch after run: no
+
+====================== mgqnap settings ======================
+
+mgqnap_user: alexey
+mgqnap_group: mtgroup
+
+======================= HPC settings ========================
+
+working_folder: /scratch/medgen/users/alexey
+
+Account to use on HPC: TISCHKOWITZ-SL2
+Max time to request (hrs.min.sec): 05.00.00
+
+==================== Pipeline summary ======================
+
+# Export selected tables from vep-vcf to txt files
+# Bi-allelic and multi-allelic variants are exported to separate files
+# Multi-allelic are NOT split to separate lines and are not convetred to numerical codes
+#
+# Exported tables:
+#
+# VCF-VEP annotations
+# GT: Genotype
+# GT add, dom, rec: Numerically coded genotypes for additive, dominant and recessive models (biallelic only) 
+# DP: Approximate read depth (reads with MQ=255 or with bad mates are filtered)
+# AD: Allelic depths for the ref and alt alleles in the order listed
+# GQ: Genotype Quality
+# PL: Normalized, Phred-scaled likelihoods for genotypes as defined in the VCF specification
+#
+# Examples of not exported tables (scarce or not needed data): 
+#
+# SB: Per-sample component statistics which comprise the Fisher's Exact Test to detect strand bias.
+# RGQ: Unconditional reference genotype confidence, encoded as a phred quality -10*log10 p(genotype call is wrong)
+# MIN_DP: Minimum DP observed within the GVCF block
+# PGT: Physical phasing haplotype information, describing how the alternate alleles are phased in relation to one another
+# PID: Physical phasing ID information, where each unique ID within a given sample (but not across samples) connects records within a phasing group
+
+===================== Standard settings =====================
+
+scripts_folder: /scratch/medgen/scripts/wes_pipeline_02.16/p08_wes_export_txt
+start_script: a00_start_pipeline.sh
+
+Tools
+-----
+
+tools_folder: /scratch/medgen/tools
+java7: java/jre1.7.0_76/bin/java
+gatk: gatk/gatk-3.4-46/GenomeAnalysisTK.jar
+
+r_bin_folder: r/R-3.2.2/bin/
+r_lib_folder: r/R-3.2.2/lib64/R/library
+
+Note about requirements for R 
+-----------------------------
+R is used here to genereate html and pdf reports with rmarkdown.
+Generating reports with Rmarkdown is pernickety about environment. 
+It requires recent versions of several system libraries
+and a number of internal R libraries to be pre-installed.
+The external libraries are loaded as modules in *.sb.sh script:
+module load gcc/5.2.0
+module load boost/1.50.0
+module load texlive/2015
+module load pandoc/1.15.2.1
+List of internal r-libraries is in the r-installation notes.
+rmarkdown library has to be installed in the r_lib_folder
+shown above.
+
+Resources
+---------
+
+resources_folder: /scratch/medgen/resources
+
+decompressed_bundle_folder: gatk_bundle/b37/decompressed
+ref_genome: human_g1k_v37.fasta
+
+nextera_folder: illumina_nextera
+nextera_targets_intervals: nexterarapidcapture_exome_targetedregions_v1.2.b37.intervals
+
+Additional settings
+-------------------
+
+VEP fields: SYMBOL|Allele|ALLELE_NUM|Consequence|IMPACT|CLIN_SIG|SIFT|PolyPhen|Existing_variation|GMAF|AFR_MAF|ASN_MAF|EUR_MAF|EAS_MAF|SAS_MAF|AA_MAF|EA_MAF|cDNA_position|CDS_position|Codons|Protein_position|Amino_acids|DISTANCE|STRAND|SYMBOL_SOURCE

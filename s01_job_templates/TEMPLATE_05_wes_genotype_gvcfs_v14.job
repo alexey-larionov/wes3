@@ -1,0 +1,119 @@
+Job description file for genotyping combined gvcfs
+Alexey Larionov, 12Feb2016
+
+TEMPLATE v14
+
+=========== Data location and analysis settings =============
+
+Data server: admin@mgqnap.medschl.cam.ac.uk
+Project location: /share/alexey
+
+project: project1
+input gvcf sets: set1 set2
+output raw variantset: variantset1
+
+Remove project folder from HPC scratch after run: no
+
+============= Additional mgqnap settings ====================
+
+mgqnap_user: alexey
+mgqnap_group: mtgroup
+
+======================= HPC settings ========================
+
+working_folder: /scratch/medgen/users/alexey
+
+Account to use on HPC: TISCHKOWITZ-SL2
+Max time to request (hrs.min.sec): 12.00.00
+
+==================== Pipeline summary =======================
+
+#Joined variant calling and calculating stats 
+#to aid selection of thresholds for filtering
+
+===================== Standard settings =====================
+
+scripts_folder: /scratch/medgen/scripts/wes_pipeline_02.16/p05_wes_genotype_gvcfs
+start_script: a00_start_pipeline.sh
+
+maxAltAlleles: 6
+stand_emit_conf: 30.0
+stand_call_conf: 30.0
+
+Tools
+-----
+
+tools_folder: /scratch/medgen/tools
+java7: java/jre1.7.0_76/bin/java
+gatk: gatk/gatk-3.4-46/GenomeAnalysisTK.jar
+
+bcftools: bcftools/bcftools-1.2/bin/bcftools
+plot_vcfstats: bcftools/bcftools-1.2/bin/plot-vcfstats
+
+Updated version of Python matplotlib library for plot-vcfstats script
+python_bin: python/python_2.7.10/bin/
+
+r_folder: r/R-3.2.0/bin
+
+r_bin_folder: r/R-3.2.2/bin/
+r_lib_folder: r/R-3.2.2/lib64/R/library
+
+Note about using different R versions
+-------------------------------------
+R-3.2.0 is used here for plotting in GATK-VQSR, 
+which requires a specific set of R-libraries.
+For being accessable by GATK, R-3.2.0 is added to PATH.
+  
+R-3.2.2 is used here to genereate html and pdf reports with rmarkdown.
+Generating reports with Rmarkdown is pernickety about environment. 
+It requires recent versions of several system libraries
+and a number of additional R libraries to be pre-installed.
+The external libraries are loaded as modules in *.sb.sh script:
+module load gcc/5.2.0
+module load boost/1.50.0
+module load texlive/2015
+module load pandoc/1.15.2.1
+Rmarkdown library has to be installed in the r_lib_folder
+shown above. 
+
+Historically, at the time of the scripts preparation, it happened
+that different sets of libraries were available in different versions
+of R installed in the toolbox. This resulted to the temporary configuration
+of using two different R versions at the same time. Then, there was 
+no time and need to change it.  
+
+See details details about required R-libraries in the 
+r-installation notes in the tools folder.
+
+Resources
+---------
+
+resources_folder: /scratch/medgen/resources
+
+decompressed_bundle_folder: gatk_bundle/b37/decompressed
+
+ref_genome: human_g1k_v37.fasta
+hapmap: hapmap_3.3.b37.vcf
+omni: 1000G_omni2.5.b37.vcf
+phase1_1k_hc: 1000G_phase1.snps.high_confidence.b37.vcf
+dbsnp_138: dbsnp_138.b37.vcf
+dbsnp_138_sites129: dbsnp_138.b37.excluding_sites_after_129.vcf
+mills: Mills_and_1000G_gold_standard.indels.b37.vcf
+
+nextera_folder: illumina_nextera
+nextera_targets_intervals: nexterarapidcapture_exome_targetedregions_v1.2.b37.intervals
+nextera_targets_bed: nexterarapidcapture_exome_targetedregions_v1.2.b37.bed
+
+fa_mask_folder: phase3_1k_release20130502/variants_with_frequent_ALT_allele_b37
+fa_mask_90: FAA_mask_90.vcf
+fa_mask_95: FAA_mask_95.vcf
+fa_mask_99: FAA_mask_99.vcf
+fa_mask_100: FAA_mask_100.vcf
+
+Working sub-folders
+-------------------
+
+logs_folder: logs
+vqsr_folder: vqsr
+vcfstats_folder: vcfstats
+histograms_folder: histograms

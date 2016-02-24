@@ -1,0 +1,172 @@
+---
+output: html_document
+params: 
+  dataset: ""
+  working_folder: ""
+  data_file: ""
+---
+
+```{r setup_read_data, include=FALSE}
+
+# Make html report for filtering step
+# Alexey Larionov
+# 06Feb2016
+
+# Read command line parameters
+
+ds <- params$dataset
+wf <- params$working_folder
+df <- params$data_file
+
+# Set chunks' options
+knitr::opts_chunk$set(fig.width=7, fig.height=4, fig.align = 'center', fig.path=wf, echo=FALSE)
+
+# Read data
+x <- read.table(df, header=TRUE)
+attach(x)
+passed.filters <- FILTER == "PASS"
+
+# Count numbers of variants
+n.all <- format(dim(x)[1], big.mark = ",", trim=TRUE, scientific = FALSE)
+n.passed <- format(sum(passed.filters), big.mark = ",", trim=TRUE, scientific = FALSE)
+
+```
+
+<center> <H1> `r ds` </H1> </center> 
+<center> <H4> Total number of variants: `r n.all` </H4> </center> 
+<center> <H4> Number of variants passed filters: `r n.passed` </H4> </center> 
+<br>
+
+```{r counts_tables}
+
+library(printr, lib='/scratch/medgen/tools/r/R-3.2.2/lib64/R/library/')
+
+# Filters summary
+n.types.all <- format(sum(table(FILTER, TYPE)), big.mark = ",", trim=TRUE, scientific = FALSE)
+c.types.all <- paste("Filters summary (all variants in the file, n=",n.types.all,")", sep ="")
+knitr::kable(table(FILTER, TYPE), format.args=list(big.mark=","), caption=c.types.all)
+
+# Recode MultiAllelic
+MultiAllelic <- as.vector(MultiAllelic)
+MultiAllelic[is.na(MultiAllelic)] <- "BiAllelic"
+MultiAllelic[MultiAllelic == "true"] <- "MultiAllelic"
+
+# MultiAllelic - all
+n.ma.all <- format(sum(table(MultiAllelic, TYPE)), big.mark = ",", trim=TRUE, scientific = FALSE)
+c.ma.all <- paste("Bi- and Multi- Allelic (all, ",n.ma.all,")", sep ="")
+knitr::kable(table(MultiAllelic, TYPE), format.args=list(big.mark=","), caption=c.ma.all)
+
+# MultiAllelc - passed filters
+n.ma.pass <- format(sum(table(MultiAllelic[passed.filters], TYPE[passed.filters])), big.mark = ",", trim=TRUE, scientific = FALSE)
+c.ma.pass <- paste("Bi- and Multi- Allelic in variants passed filters (",n.ma.pass,")", sep ="")
+knitr::kable(table(MultiAllelic[passed.filters], TYPE[passed.filters]), format.args=list(big.mark=","), caption=c.ma.pass)
+
+# Frequent in 1k - all
+a <- table(ALT_frequency_in_1k_90, TYPE)
+rownames(a) <- "ALT freq in 1k > 90%"
+b <- table(ALT_frequency_in_1k_95, TYPE)
+rownames(b) <- "ALT freq in 1k > 95%"
+c <- table(ALT_frequency_in_1k_99, TYPE)
+rownames(c) <- "ALT freq in 1k > 99%"
+d <- table(ALT_frequency_in_1k_100, TYPE)
+rownames(d) <- "ALT freq in 1k = 100%"
+e <- rbind(a,b,c,d)
+
+n.fa.all <- format(sum(e), big.mark = ",", trim=TRUE, scientific = FALSE)
+fa.all.caption=paste("Variants frequent in 1k (all, n=",n.fa.all,")", sep="")
+knitr::kable(e, format.args=list(big.mark=","), caption=fa.all.caption)
+
+# Frequent in 1k - passed filters
+f <- table(ALT_frequency_in_1k_90[passed.filters], TYPE[passed.filters])
+rownames(f) <- "ALT freq in 1k > 90%"
+g <- table(ALT_frequency_in_1k_95[passed.filters], TYPE[passed.filters])
+rownames(g) <- "ALT freq in 1k > 95%"
+h <- table(ALT_frequency_in_1k_99[passed.filters], TYPE[passed.filters])
+rownames(h) <- "ALT freq in 1k > 99%"
+i <- table(ALT_frequency_in_1k_100[passed.filters], TYPE[passed.filters])
+rownames(i) <- "ALT freq in 1k = 100%"
+j <- rbind(f,g,h,i)
+
+n.fa.pass <- format(sum(j), big.mark = ",", trim=TRUE, scientific = FALSE)
+fa.pass.caption=paste("Variants frequent in 1k (passed filters, n=",n.fa.pass,")", sep="")
+knitr::kable(j, format.args=list(big.mark=","), caption=fa.pass.caption)
+
+```
+
+---
+
+```{r SNP_histograms_no_filters}
+hist(VQSLOD[TYPE == "SNP"], main="SNPs VQSLOD (all, no zoom)", xlab="VQSLOD")
+
+hist(VQSLOD[VQSLOD >=-30 & VQSLOD <= 30 & TYPE == "SNP"], breaks=100, 
+     main="SNPs VQSLOD (all, zoom -30 to 30)", xlim=c(-30,30), xlab="VQSLOD")
+
+```
+
+---
+
+```{r SNP_histograms_after_filters}
+hist(VQSLOD[TYPE == "SNP" & passed.filters], main="SNPs VQSLOD (passed filters, no zoom)", xlab="VQSLOD")
+
+hist(VQSLOD[VQSLOD >=-30 & VQSLOD <= 30 & TYPE == "SNP" & passed.filters], breaks=100, 
+     main="SNPs VQSLOD (passed filters, zoom -30 to 30)", xlim=c(-30,30), xlab="VQSLOD")
+
+```
+
+---
+
+```{r INDEL_histograms_no_filters}
+hist(VQSLOD[TYPE == "INDEL"], main="INDELs VQSLOD (all, no zoom)", xlab="VQSLOD")
+
+hist(VQSLOD[VQSLOD >=-30 & VQSLOD <= 30 & TYPE == "INDEL"], breaks=100, 
+     main="INDELs VQSLOD (all, zoom -30 to 30)", xlim=c(-30,30), xlab="VQSLOD")
+
+```
+
+---
+
+```{r INDEL_histograms_after_filters}
+hist(VQSLOD[TYPE == "INDEL" & passed.filters], main="INDELs VQSLOD (passed filters, no zoom)", xlab="VQSLOD")
+
+hist(VQSLOD[VQSLOD >=-30 & VQSLOD <= 30 & TYPE == "INDEL" & passed.filters], breaks=25, 
+     main="INDELs VQSLOD (passed filters, zoom -30 to 30)", xlim=c(-30,30), xlab="VQSLOD")
+
+```
+
+---
+
+```{r DP_histograms_no_filters}
+hist(DP, main="DP (all, no zoom)", xlab="DP")
+
+DP.cap <- floor(quantile(DP, 0.99)) # exclude 1% of excessive dp
+DP.zm.main <- paste("DP (all, zoom 0 - ",DP.cap,")", sep="")
+hist(DP[DP < DP.cap], breaks=100, xlim=c(0,DP.cap), main=DP.zm.main, xlab="DP")
+```
+
+---
+
+```{r DP_histograms_after_filters}
+hist(DP[passed.filters], main="DP (passed filters, no zoom)", xlab="DP")
+
+DP.cap <- floor(quantile(DP, 0.99)) # exclude 1% of excessive dp
+DP.zm.main <- paste("DP (passed filters, zoom 0 - ",DP.cap,")", sep="")
+hist(DP[DP < DP.cap & passed.filters], breaks=100, xlim=c(0,DP.cap), main=DP.zm.main, xlab="DP")
+```
+
+---
+
+```{r QUAL_histograms_no_filters}
+hist(QUAL, main="QUAL (all, no zoom)", xlab="QUAL")
+hist(QUAL[QUAL < 250], breaks=100, xlim=c(0,250), main="QUAL (all, zoom 0 - 250)", xlab="QUAL")
+```
+
+---
+
+```{r QUAL_histograms_after_filters}
+hist(QUAL, main="QUAL (passed filters, no zoom)", xlab="QUAL")
+hist(QUAL[QUAL < 250 & passed.filters], breaks=100, xlim=c(0,250), main="QUAL (passed filters, zoom 0 - 250)", xlab="QUAL")
+```
+
+```{r Clenaup}
+detach(x)
+```
